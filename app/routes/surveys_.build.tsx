@@ -7,7 +7,7 @@ import { QuestionBuilder } from '~/components/QuestionBuilder';
 import { QuestionWithoutId, QuestionWithoutSurveyId } from '~/types/QuestionWithoutId';
 import { prisma } from '~/prismaClient';
 
-export async function action ({ request }: ActionFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const newSurvey = await prisma.survey.create({
     data: {
@@ -15,14 +15,12 @@ export async function action ({ request }: ActionFunctionArgs) {
     }
   });
 
+  const questions = formData.getAll(`question[]`).map(q => q.toString());
+
   const questionsToCreate: QuestionWithoutId[] = [];
-  for (let i = 0; true; i++) {
-    const question = formData.get(`question${i}`);
-    if (question === null) {
-      break;
-    }
+  for (const [index, question] of questions.entries()) {
     questionsToCreate.push({
-      index: i,
+      index,
       description: question.toString(),
       surveyId: newSurvey.id
     });
@@ -48,7 +46,7 @@ export default function SurveysBuild() {
 
   useEffect(
     () => {
-      if(actionData?.success) setShowPopup(true);
+      if (actionData?.success) setShowPopup(true);
     }
     , [actionData]
   );
@@ -58,7 +56,7 @@ export default function SurveysBuild() {
       if (showPopup) setTimeout(() => setShowPopup(false), 5000);
     }
     , [showPopup]);
-  
+
   function createQuestion() {
     const newQuestion: QuestionWithoutSurveyId = {
       index: questions.length,
@@ -76,7 +74,7 @@ export default function SurveysBuild() {
           <label htmlFor="name">Name</label>
           <input id="name" name="name" type="text" />
         </div>
-        { questions.map(question => <QuestionBuilder key={question.index} question={question}/>) }
+        {questions.map(question => <QuestionBuilder key={question.index} question={question} />)}
         <button type="button" onClick={() => createQuestion()}>Add Question</button>
         <input type="submit" />
       </Form>
