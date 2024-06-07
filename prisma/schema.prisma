@@ -21,4 +21,13 @@ model Question {
   description String
 
   survey Survey @relation(fields: [surveyId], references: [id])
+  responses Response[]
+}
+
+model Response {
+  id Int @id @default(autoincrement())
+  questionId Int
+  value String
+
+  question Question @relation(fields: [questionId], references: [id])
 }

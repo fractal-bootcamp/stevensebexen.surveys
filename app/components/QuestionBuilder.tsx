@@ -5,11 +5,11 @@ interface QuestionBuilderProps {
 }
 
 export function QuestionBuilder(props: QuestionBuilderProps) {
-  const questionId = `question${props.question.index}`;
+  const inputId = `question${props.question.index}`;
   return (
     <div>
-      <label htmlFor={questionId}>Question {props.question.index}</label>
-      <input id={questionId} name="question[]" placeholder="Enter question..." />
+      <label htmlFor={inputId}>Question {props.question.index}</label>
+      <input id={inputId} name="question[]" placeholder="Enter question..." />
     </div>
   )
 }

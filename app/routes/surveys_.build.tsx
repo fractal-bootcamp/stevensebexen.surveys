@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActionFunction, ActionFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, json } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react'
 
 import { NavBar } from '~/components/NavBar';
@@ -26,14 +26,14 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const newQuestions = await prisma.question.createManyAndReturn({
+  const resultCreate = await prisma.question.createMany({
     data: questionsToCreate
   });
 
   const responseJson = {
     success: Boolean(newSurvey),
     name: newSurvey.name,
-    questions: newQuestions.map(newQuestion => newQuestion.description)
+    prismaResult: resultCreate
   };
 
   return json(responseJson);
@@ -47,15 +47,10 @@ export default function SurveysBuild() {
   useEffect(
     () => {
       if (actionData?.success) setShowPopup(true);
-    }
-    , [actionData]
+      setTimeout(() => setShowPopup(false), 5000);
+    },
+    [actionData]
   );
-
-  useEffect(
-    () => {
-      if (showPopup) setTimeout(() => setShowPopup(false), 5000);
-    }
-    , [showPopup]);
 
   function createQuestion() {
     const newQuestion: QuestionWithoutSurveyId = {
