@@ -1,11 +1,16 @@
 import { LoaderFunction, json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from '@remix-run/react';
 
 import { NavBar } from '~/components/NavBar';
 import { prisma } from '~/prismaClient';
 
 export async function loader () {
-  const allSurveys = await prisma.survey.findMany();
+  const allSurveys = await prisma.survey.findMany({
+    select: {
+      name: true,
+      id: true
+    }
+  });
   return json(allSurveys);
 }
 
@@ -16,7 +21,7 @@ export default function Surveys() {
   return (
     <div>
       <NavBar />
-      {allSurveys.map(survey => <p>{survey.name}</p>)}
+      {allSurveys.map(survey => <Link to={`/surveys/${survey.id}`}>{survey.name}</Link>)}
     </div>
   )
 }
