@@ -2,7 +2,6 @@ services:
   survey-db:
     image: postgres
     restart: always
-    shm-size: 128mb
     environment:
       POSTGRES_USER: dragonquestion
       POSTGRES_PASSWORD: rawrx3
