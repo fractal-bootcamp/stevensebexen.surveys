@@ -4,7 +4,7 @@ import { useLoaderData } from '@remix-run/react';
 import { NavBar } from '~/components/NavBar';
 import { prisma } from '~/prismaClient';
 
-export const loader: LoaderFunction = async () => {
+export async function loader () {
   const allSurveys = await prisma.survey.findMany();
   return json(allSurveys);
 }
