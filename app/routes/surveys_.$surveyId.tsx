@@ -10,7 +10,7 @@ export async function loader({ params }: ClientLoaderFunctionArgs) {
   
   const survey = await prisma.survey.findUnique({
     where: {
-      id: parseInt(params.surveyId || "null")
+      id: parseInt(params.surveyId || '-1')
     },
     include: {
       questions: true
