@@ -8,9 +8,11 @@ import { prisma } from '~/prismaClient';
 
 export async function loader({ params }: ClientLoaderFunctionArgs) {
   
+if (!params.surveyId) return null;
+
   const survey = await prisma.survey.findUnique({
     where: {
-      id: params.surveyId ? parseInt(params.surveyId) : undefined
+      id: parseInt(params.surveyId)
     },
     include: {
       questions: true
