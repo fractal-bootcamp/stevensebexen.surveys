@@ -21,7 +21,7 @@ export default function Surveys() {
   return (
     <div>
       <NavBar />
-      {allSurveys.map(survey => <Link to={`/surveys/${survey.id}`}>{survey.name}</Link>)}
+      {allSurveys.map(survey => <Link key={survey.id} to={`/surveys/${survey.id}`}>{survey.name}</Link>)}
     </div>
   )
 }

@@ -9,7 +9,7 @@ export function QuestionViewer(props: QuestionViewerProps) {
   return (
     <div>
       <label htmlFor={inputId}>{props.question.description}</label>
-      <input id={inputId} name={inputId} placeholder='Enter your answer...' />
+      <input id={inputId} name={props.question.id.toString()} placeholder="Enter your answer..." />
     </div>
   )
 }
