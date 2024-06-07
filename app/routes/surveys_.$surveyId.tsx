@@ -1,14 +1,18 @@
-import { json } from '@remix-run/node';
-import { useActionData, useLoaderData, ClientLoaderFunctionArgs, redirect } from '@remix-run/react';
+import { json, ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
+import { useActionData, useLoaderData, redirect } from '@remix-run/react';
 
 import { NavBar } from '~/components/NavBar';
 import { QuestionViewer } from '~/components/QuestionViewer';
 
 import { prisma } from '~/prismaClient';
 
-export async function loader({ params }: ClientLoaderFunctionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   
-if (!params.surveyId) throw json({ error: 'Survey not found', status:400 });
+}
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  
+  if (!params.surveyId) throw json({ error: 'Survey not found', status:400 });
 
   const survey = await prisma.survey.findUnique({
     where: {
@@ -20,6 +24,7 @@ if (!params.surveyId) throw json({ error: 'Survey not found', status:400 });
   });
 
   return json(survey);
+
 }
 
 export default function SurveyView() {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActionFunction, ActionFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, json } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react'
 
 import { NavBar } from '~/components/NavBar';
