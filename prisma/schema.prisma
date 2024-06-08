@@ -21,10 +21,10 @@ model Question {
   description String
 
   survey Survey @relation(fields: [surveyId], references: [id])
-  responses Response[]
+  responses SurveyResponse[]
 }
 
-model Response {
+model SurveyResponse {
   id Int @id @default(autoincrement())
   questionId Int
   value String

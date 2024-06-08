@@ -1,4 +1,4 @@
-import { Response } from '@prisma/client';
+import { SurveyResponse } from '@prisma/client';
 import { useEffect, useState } from 'react';
 import { json, ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { Form, useActionData, useLoaderData, redirect } from '@remix-run/react';
@@ -8,13 +8,13 @@ import { QuestionViewer } from '~/components/QuestionViewer';
 
 import { prisma } from '~/prismaClient';
 
-type ResponseWithoutId = Omit<Response, "id">
+type SurveyResponseWithoutId = Omit<SurveyResponse, "id">
 
 export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const responsesToCreate: ResponseWithoutId[] = [];
+  const responsesToCreate: SurveyResponseWithoutId[] = [];
   for (const [questionId, response] of formData.entries()) {
     responsesToCreate.push({
       questionId: parseInt(questionId),
@@ -22,7 +22,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   }
 
-  const resultCreate = await prisma.response.createMany({
+  const resultCreate = await prisma.surveyResponse.createMany({
     data: responsesToCreate
   });
 
@@ -37,7 +37,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   
-  if (!params.surveyId) throw json({ error: 'Survey not found', status:400 });
+  if (!params.surveyId) throw new Response(null, { status: 400, statusText: 'Survey id required'})
 
   const survey = await prisma.survey.findUnique({
     where: {
@@ -47,6 +47,8 @@ export async function loader({ params }: LoaderFunctionArgs) {
       questions: true
     }
   });
+
+  if (survey === null) throw new Response(null, { status: 404, statusText: 'Survey not found' });
 
   return json(survey);
 
