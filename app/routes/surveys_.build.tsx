@@ -4,7 +4,7 @@ import { Form, useActionData } from '@remix-run/react'
 
 import { NavBar } from '~/components/NavBar';
 import { QuestionBuilder } from '~/components/QuestionBuilder';
-import { QuestionWithoutId, QuestionWithoutSurveyId } from '~/types/QuestionWithoutId';
+import { QuestionIndexedWithoutId, QuestionLocal } from '~/types/Questions';
 import { prisma } from '~/prismaClient';
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -17,7 +17,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const questions = formData.getAll(`question[]`).map(q => q.toString());
 
-  const questionsToCreate: QuestionWithoutId[] = [];
+  const questionsToCreate: QuestionIndexedWithoutId[] = [];
   for (const [index, question] of questions.entries()) {
     questionsToCreate.push({
       index,
@@ -40,7 +40,8 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function SurveysBuild() {
-  const [questions, setQuestions] = useState<Array<QuestionWithoutSurveyId>>([]);
+  const [currentId, setCurrentId] = useState<number>(0);
+  const [questions, setQuestions] = useState<Array<QuestionLocal>>([]);
   const [showPopup, setShowPopup] = useState<Boolean>(false);
   const actionData = useActionData<typeof action>();
 
@@ -52,12 +53,41 @@ export default function SurveysBuild() {
     [actionData]
   );
 
-  function createQuestion() {
-    const newQuestion: QuestionWithoutSurveyId = {
-      index: questions.length,
+  function generateLocalId(): number {
+    setCurrentId(currentId + 1);
+    return currentId;
+  }
+
+  function createQuestion(): void {
+    const newQuestion: QuestionLocal = {
+      localId: generateLocalId(),
       description: '',
     };
-    const newQuestions = [...questions, newQuestion];
+    const newQuestions = questions.slice();
+    newQuestions.push(newQuestion);
+    setQuestions(newQuestions);
+  }
+
+  function deleteQuestion(question: QuestionLocal): void {
+    const questionIndex = questions.findIndex(q => q === question);
+    const newQuestions: QuestionLocal[] = [...questions.slice(0, questionIndex), ...questions.slice(questionIndex + 1)];
+    setQuestions(newQuestions);
+  }
+
+  function shiftQuestionOrder(question: QuestionLocal, delta: number): void {
+    const newQuestions = questions.slice();
+    const qi = questions.findIndex(q => q === question);
+
+    if (qi + delta < 0 || qi + delta >= questions.length) return;
+
+    [newQuestions[qi], newQuestions[qi + delta]] = [newQuestions[qi + delta], newQuestions[qi]];
+    setQuestions(newQuestions);
+  }
+
+  function updateQuestionDescription(question: QuestionLocal, newDescription: string): void {
+    const questionIndex = questions.findIndex(q => q === question);
+    const newQuestions: QuestionLocal[] = questions.slice();
+    newQuestions[questionIndex].description = newDescription;
     setQuestions(newQuestions);
   }
 
@@ -69,7 +99,13 @@ export default function SurveysBuild() {
           <label htmlFor="name">Name</label>
           <input id="name" name="name" type="text" />
         </div>
-        {questions.map(question => <QuestionBuilder key={question.index} question={question} />)}
+        {questions.map((question, index) => <QuestionBuilder
+          key={question.localId}
+          question={question}
+          callbackDeleteQuestion={() => deleteQuestion(question)}
+          callbackShiftQuestionOrder={(delta: number) => shiftQuestionOrder(question, delta)}
+          callbackUpdateQuestionDescription = {(newDescription: string) => updateQuestionDescription(question, newDescription)}
+        />)}
         <button type="button" onClick={() => createQuestion()}>Add Question</button>
         <input type="submit" />
       </Form>
